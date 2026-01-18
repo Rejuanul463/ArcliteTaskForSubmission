@@ -6,6 +6,7 @@ public class SelectionHandler : MonoBehaviour
     public static event Action<GameObject> OnObjectClicked;
     void Update()
     {
+        // Check for mouse click on any object
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

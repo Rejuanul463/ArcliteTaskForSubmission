@@ -1,14 +1,15 @@
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.SceneManagement;
-using UnityEditor.SceneManagement;
 using System.Collections;
 
 public class Fade : MonoBehaviour
 {
     public float duration = 1f;
+
     private Renderer rend;
     private Material mat;
+    private static readonly int BaseColorID = Shader.PropertyToID("_BaseColor");
 
     void Start()
     {
@@ -17,31 +18,34 @@ public class Fade : MonoBehaviour
         {
             mat = rend.material;
         }
-
     }
 
     public void FadeIn()
     {
         if (TryGetComponent(out CanvasGroup canvasGroup))
         {
-            // make the UI fade in
+            // Fade in UI
             canvasGroup.alpha = 0f;
             canvasGroup.DOFade(1f, duration);
         }
         else if (mat != null)
         {
-            Color c = mat.GetColor("_BaseColor");
-            c.a = 0f; // invissible at start
-            mat.SetColor("_BaseColor", c);
+            // Fade in 3D object
+            Color c = mat.GetColor(BaseColorID);
+            c.a = 0f;
+            mat.SetColor(BaseColorID, c);
 
-            DOTween.To(() => mat.GetColor("_BaseColor").a,
-                       x =>
-                       {
-                           Color col = mat.GetColor("_BaseColor");
-                           col.a = x;
-                           mat.SetColor("_BaseColor", col);
-                       },
-                       1f, duration);
+            DOTween.To(
+                () => mat.GetColor(BaseColorID).a,
+                x =>
+                {
+                    Color col = mat.GetColor(BaseColorID);
+                    col.a = x;
+                    mat.SetColor(BaseColorID, col);
+                },
+                1f,
+                duration
+            );
         }
     }
 
@@ -49,26 +53,32 @@ public class Fade : MonoBehaviour
     {
         if (TryGetComponent(out CanvasGroup canvasGroup))
         {
-            //make the Ui fadeout
+            // fade out UI
             canvasGroup.DOFade(0f, duration);
         }
         else if (mat != null)
         {
-            Color c = mat.GetColor("_BaseColor");
+            // fade out 3D object
+            Color c = mat.GetColor(BaseColorID);
             float startAlpha = c.a;
-            DOTween.To(() => startAlpha,
-                       x =>
-                       {
-                           Color col = mat.GetColor("_BaseColor");
-                           col.a = x;
-                           mat.SetColor("_BaseColor", col);
-                       },
-                       0f, duration);
-            StartCoroutine(removeObject());
+
+            DOTween.To(
+                () => startAlpha,
+                x =>
+                {
+                    Color col = mat.GetColor(BaseColorID);
+                    col.a = x;
+                    mat.SetColor(BaseColorID, col);
+                },
+                0f,
+                duration
+            );
+
+            StartCoroutine(RemoveObject());
         }
     }
 
-    IEnumerator removeObject()
+    private IEnumerator RemoveObject()
     {
         yield return new WaitForSeconds(duration);
         Destroy(gameObject);
@@ -82,15 +92,16 @@ public class Fade : MonoBehaviour
     void OnDisable()
     {
         SceneManager.activeSceneChanged -= SceneChanged;
+        // remove running tween if any
+        DOTween.Kill(this);
     }
 
-    void SceneChanged(Scene prev, Scene next)
+    private void SceneChanged(Scene prev, Scene next)
     {
-        if (next == gameObject.scene) // whenever any scene gets active...
+        if (next == gameObject.scene) // Fade in when activating scene
         {
             FadeIn();
         }
     }
-
 
 }

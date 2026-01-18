@@ -37,7 +37,7 @@ public class SphereRotation : MonoBehaviour
     {
         SelectionHandler.OnObjectClicked -= HandleClick;
     }
-
+    // to detect if clicked on sphere
     void HandleClick(GameObject clickedObject)
     {
         if (gameObject != clickedObject)
