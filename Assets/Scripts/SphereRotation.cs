@@ -3,31 +3,53 @@ using UnityEngine;
 
 public class SphereRotation : MonoBehaviour
 {
-    public Transform target;
-
-    public Vector3 axis = Vector3.up;
-    public float speed = 50f;
-
-    private Tween orbitTween;
+    public Transform orbitCenter;
+    public float orbitSpeed = 20f;
+    public float orbitDistance;
+    public Vector3 orbitAxis = Vector3.up;
+    public bool clockwise = true;
 
     void Start()
     {
-        if (target != null)
-            StartOrbit();
+        if (orbitCenter != null)
+        {
+            transform.localScale = orbitCenter.localScale * 0.5f;
+            Vector3 direction = (transform.position - orbitCenter.position).normalized;
+            if (direction == Vector3.zero) direction = Vector3.right;
+            transform.position = orbitCenter.position + direction * orbitDistance;
+        }
     }
 
-    public void StartOrbit()
+    void Update()
     {
-        StopOrbit();
+        if (orbitCenter == null) return;
 
-        orbitTween = DOTween.To(() => 0f, x => transform.RotateAround(target.position, axis, speed * Time.deltaTime), 1f, 1f)
-                    .SetLoops(-1).SetEase(Ease.Linear);
+        float direction = clockwise ? 1f : -1f;
+        transform.RotateAround(orbitCenter.position, orbitAxis, orbitSpeed * direction * Time.deltaTime);
     }
 
-    public void StopOrbit()
+    void OnEnable()
     {
-        if (orbitTween != null && orbitTween.IsActive())
-            orbitTween.Kill();
+        SelectionHandler.OnObjectClicked += HandleClick;
+    }
+
+    void OnDisable()
+    {
+        SelectionHandler.OnObjectClicked -= HandleClick;
+    }
+
+    void HandleClick(GameObject clickedObject)
+    {
+        if (gameObject != clickedObject)
+            GetComponent<Fade>().FadeOut();
+        else
+        {
+            Vector3 centre = transform.root.position;
+            transform.SetParent(null);
+            transform.DOMove(centre, 2f);
+            orbitCenter = null;
+            DontDestroyOnLoad(gameObject);
+        }
     }
 }
 
