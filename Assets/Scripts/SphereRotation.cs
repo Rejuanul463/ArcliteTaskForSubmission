@@ -16,7 +16,7 @@ public class SphereRotation : MonoBehaviour
             transform.localScale = orbitCenter.localScale * 0.5f;
             Vector3 direction = (transform.position - orbitCenter.position).normalized;
             if (direction == Vector3.zero) direction = Vector3.right;
-            transform.position = orbitCenter.position + direction * orbitDistance;
+            transform.position = orbitCenter.position + direction * orbitDistance * transform.localScale.x;
         }
     }
 

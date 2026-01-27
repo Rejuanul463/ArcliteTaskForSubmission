@@ -151,6 +151,11 @@ public class SceneLoader : MonoBehaviour
 
     private void ReloadScenes()
     {
+        GameObject existingSphere = GameObject.Find("SphereRotation");
+        if (existingSphere != null)
+        {
+            Destroy(existingSphere);
+        }
         StartCoroutine(ReloadScenesCoroutine());
     }
 
