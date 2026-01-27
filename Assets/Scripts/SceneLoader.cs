@@ -1,3 +1,4 @@
+using DG.Tweening.Core.Easing;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -151,10 +152,10 @@ public class SceneLoader : MonoBehaviour
 
     private void ReloadScenes()
     {
-        GameObject existingSphere = GameObject.Find("SphereRotation");
+        var existingSphere = FindObjectOfType<SphereRotation>();
         if (existingSphere != null)
         {
-            Destroy(existingSphere);
+            Destroy(existingSphere.gameObject);
         }
         StartCoroutine(ReloadScenesCoroutine());
     }
